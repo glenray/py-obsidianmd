@@ -327,6 +327,8 @@ class Frontmatter(Metadata):
         for k, v in self.metadata.items():
             if len(v) == 1:
                 metadata_repr += f"{k}: {self._quotifyLink(v[0])}\n"
+            elif len(v) == 0:
+                metadata_repr += f"{k}: \n"
             else:
                 metadata_repr += f'{k}: ['
                 for v1 in v:
