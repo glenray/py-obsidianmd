@@ -1,3 +1,11 @@
+# Fork Notes
+
+This is a fork of [py-obsidianmd](https://github.com/selimrbd/py-obsidianmd) by selimrbd. As far as I can tell, selimrbd is not developing py-obsidianmd, so I am fixing bugs and adding features to suit my needs.
+
+Change Log (newest to oldest):
+- Bug fix: Maintain quotes around internal link property values. The quotes are necessary for Obsidian to parse internal links in properties. Obsidian includes them automatically, but py-obsidianmd was stripping them out.
+
+
 # py-obsidianmd
 
 A python library for modifying [Obsidian](https://obsidian.md/) notes in batch.
