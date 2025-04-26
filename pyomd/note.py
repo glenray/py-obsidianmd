@@ -150,7 +150,10 @@ class Notes:
             NoteMetadataBatch object
     """
 
-    def __init__(self, paths: Union[Path, list[Path]], recursive: bool = True):
+    def __init__(self, 
+        paths: Union[Path, list[Path]], 
+        excludePaths: Union[Path, list[Path], None] = None,
+        recursive: bool = True):
         """Initializes a Notes object.
 
         Add paths to individual notes or to directories containing multiple notes.
@@ -158,18 +161,46 @@ class Notes:
         Args:
             paths:
                 list of paths pointing to markdown notes or folders
+            excludePaths:
+                list of sub directories of paths to exclude from batch, e.g. template directory, attachments, etc
             recursive:
                 When given a path to a directory, whether to add notes
                 from sub-directories too
         """
         self.notes: list[Note] = []
+        if isinstance(excludePaths, list) or excludePaths == None:
+            self.excludePaths = excludePaths
+        elif isinstance(excludePaths, Path):
+            self.excludePaths = [excludePaths]
+        else:
+            raise ValueError(f"Parameter excludePaths must be a Path object, a list of Path objects, or None. {excludePaths} ({type(excludePaths)}) given.")
         self.add(paths=paths, recursive=recursive)
         self.metadata = NoteMetadataBatch(self.notes)
+
+    def _isExcluded(self, path: str) -> bool:
+        """Test whether path should be skipped as excluded
+
+        Args:
+            path:
+                string of path to test for exclusion
+        Returns bool:
+            True: the path should be excluded
+
+        """
+        if self.excludePaths == None:
+            return False
+        for excludedPath in self.excludePaths:
+            if path.startswith(str(excludedPath)):
+                return True
+        return False
+
 
     def __len__(self):
         return len(self.notes)
 
-    def add(self, paths: Union[Path, list[Path]], recursive: bool = True):
+    def add(self, 
+        paths: Union[Path, list[Path]], 
+        recursive: bool = True):
         """Adds new notes to the Notes object.
 
         Args:
@@ -187,11 +218,11 @@ class Notes:
                 for root, _, fls in os.walk(pth):  # type: ignore
                     for f_name in fls:  # type: ignore
                         pth_f: Path = Path(root) / f_name  # type: ignore
-                        if Note._is_md_file(pth_f):
+                        if Note._is_md_file(pth_f) and not self._isExcluded(root):
                             self.notes.append(Note(path=pth_f))
                     if not recursive:
                         break
-            elif Note._is_md_file(pth):
+            elif Note._is_md_file(pth) and not self._isExcluded(root):
                 self.notes.append(Note(path=pth))
 
     def append(self, str_append: str, allow_repeat: bool = False):

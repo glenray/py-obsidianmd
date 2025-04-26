@@ -3,6 +3,7 @@
 This is a fork of [py-obsidianmd](https://github.com/selimrbd/py-obsidianmd) by selimrbd. As far as I can tell, selimrbd is not developing py-obsidianmd, so I am fixing bugs and adding features to suit my needs.
 
 Change Log (newest to oldest):
+- New Feature: Added parameter `excludePaths` to Notes.__init__. This is a pathlib.Path object (or a list of them). If excludePaths are sub-directories of the `paths` parameter, the sub-directories will be excluded from the batch.
 - Bug fix: Maintain quotes around internal link property values. The quotes are necessary for Obsidian to parse internal links in properties. Obsidian includes them automatically, but py-obsidianmd was stripping them out.
 
 
