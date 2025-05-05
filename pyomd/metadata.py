@@ -302,14 +302,17 @@ class Frontmatter(Metadata):
     REGEX = "(?s)(^---\n).*?(\n---\n)"
 
     def _quotifyLink(self, value) -> str:
-        """ Add quotes around Obsidian internal links found in metadata
-            property values
+        """ Add quotes around property value if
+                1. the value is an internal link; or
+                2. the value contains ": " colon followed by a space
+            Otherwise, the orginal value is returned.
 
             Returns:
-                String: value in double quotes if value is an internal link; otherwise,
-                the original value
+                String
         """
-        if value.startswith("[[") and value.endswith("]]"):
+        hasInternalLink = value.startswith("[[") and value.endswith("]]")
+        hasColonSpace = value.count(": ")
+        if hasInternalLink or hasColonSpace:
             return f"\"{value}\""
         else:
             return value
