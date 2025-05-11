@@ -11,6 +11,7 @@ from string import Template
 from typing import TYPE_CHECKING, Callable, Optional, Tuple, Type, Union
 
 import frontmatter  # type: ignore
+import yaml
 
 from pyomd.config import CONFIG
 
@@ -301,23 +302,6 @@ class Frontmatter(Metadata):
 
     REGEX = "(?s)(^---\n).*?(\n---\n)"
 
-    def _quotifyLink(self, value) -> str:
-        """ Add quotes around property value if
-                1. the value is an internal link; or
-                2. the value contains ": " colon followed by a space
-            Otherwise, the orginal value is returned.
-
-            Returns:
-                String
-        """
-        hasInternalLink = value.startswith("[[") and value.endswith("]]")
-        hasColonSpace = value.count(": ")
-        if hasInternalLink or hasColonSpace:
-            return f"\"{value}\""
-        else:
-            return value
-
-
     def to_string(self) -> str:
         """Render metadata as a string.
 
@@ -326,19 +310,18 @@ class Frontmatter(Metadata):
         """
         if len(self.metadata) == 0:
             return ""
-        metadata_repr = ""
         for k, v in self.metadata.items():
+            # take single value properties out of a list
             if len(v) == 1:
-                metadata_repr += f"{k}: {self._quotifyLink(v[0])}\n"
+                self.metadata[k] = v[0]
+            # empty properties 
             elif len(v) == 0:
-                metadata_repr += f"{k}: \n"
-            else:
-                metadata_repr += f'{k}: ['
-                for v1 in v:
-                    metadata_repr += f'{self._quotifyLink(v1)}'
-                    metadata_repr += "]\n" if v1 is v[-1] else ', '
-        out = "---\n" + metadata_repr + "---\n"
-        return out
+                self.metadata[k] = None
+
+        # leverage pyyaml to escape special characters
+        metadata_repr = yaml.dump(self.metadata, sort_keys=False, allow_unicode=True, default_flow_style=False, width=None)
+        return "---\n" + metadata_repr + "---\n"
+
 
     def _update_content(self, note_content: str) -> str:
         """Returns the note content with the updated metadata.
