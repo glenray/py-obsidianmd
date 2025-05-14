@@ -316,10 +316,10 @@ class Frontmatter(Metadata):
                 self.metadata[k] = v[0]
             # empty properties 
             elif len(v) == 0:
-                self.metadata[k] = None
+                self.metadata[k] = ""
 
         # leverage pyyaml to escape special characters
-        metadata_repr = yaml.dump(self.metadata, sort_keys=False, allow_unicode=True, default_flow_style=False, width=None)
+        metadata_repr = yaml.dump(self.metadata, sort_keys=False, allow_unicode=True, default_flow_style=False)
         return "---\n" + metadata_repr + "---\n"
 
 
