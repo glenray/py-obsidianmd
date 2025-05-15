@@ -72,9 +72,10 @@ class Metadata(ABC):
         if self.to_string() is None:
             rpr += " None"
         else:
-            rpr += "".join(
-                [f'- {k}: {", ".join(v)}\n' for k, v in self.metadata.items()]
-            )
+            rpr += self.to_string()
+            # rpr += "".join(
+            #     [f'- {k}: {", ".join(v)}\n' for k, v in self.metadata.items()]
+            # )
         return rpr
 
     @abstractmethod
@@ -311,12 +312,13 @@ class Frontmatter(Metadata):
         if len(self.metadata) == 0:
             return ""
         for k, v in self.metadata.items():
-            # take single value properties out of a list
-            if len(v) == 1:
-                self.metadata[k] = v[0]
             # empty properties 
-            elif len(v) == 0:
-                self.metadata[k] = ""
+            if v == None or len(v) == 0:
+                self.metadata[k] = None
+            # take single value properties out of a list
+            elif len(v) == 1:
+                self.metadata[k] = v[0]
+            
 
         # leverage pyyaml to escape special characters
         metadata_repr = yaml.dump(self.metadata, sort_keys=False, allow_unicode=True, default_flow_style=False)
